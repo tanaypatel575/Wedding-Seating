@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find Your Table</title>
+    <style>
+        /* ============================================
+           CUSTOMIZATION SECTION - Edit colors/fonts here
+           ============================================ */
+        :root {
+            --primary-color: #2c5530;      /* Main green color */
+            --primary-light: #3d7a43;      /* Lighter green for hover */
+            --accent-color: #d4a574;       /* Gold/tan accent */
+            --background: #faf8f5;         /* Cream background */
+            --text-color: #2c2c2c;         /* Dark text */
+            --text-light: #666666;         /* Light text */
+            --white: #ffffff;
+            --error-color: #c44536;        /* Red for errors */
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        /* ============================================
+           BASE STYLES
+           ============================================ */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            background: var(--background);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* ============================================
+           HEADER - Couple names and date
+           ============================================ */
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-top: 20px;
+        }
+
+        .couple-names {
+            font-size: 2.2rem;
+            font-weight: normal;
+            color: var(--primary-color);
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+        }
+
+        .wedding-date {
+            font-size: 1rem;
+            color: var(--text-light);
+            letter-spacing: 1px;
+        }
+
+        .divider {
+            width: 60px;
+            height: 2px;
+            background: var(--accent-color);
+            margin: 20px auto;
+        }
+
+        /* ============================================
+           MAIN CARD
+           ============================================ */
+        .card {
+            background: var(--white);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            padding: 40px 30px;
+            width: 100%;
+            max-width: 420px;
+            text-align: center;
+        }
+
+        .card h2 {
+            font-size: 1.5rem;
+            font-weight: normal;
+            margin-bottom: 25px;
+            color: var(--text-color);
+        }
+
+        /* ============================================
+           FORM ELEMENTS
+           ============================================ */
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text-light);
+            margin-bottom: 6px;
+            letter-spacing: 0.5px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 14px 16px;
+            font-size: 1rem;
+            font-family: inherit;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(44, 85, 48, 0.1);
+        }
+
+        button {
+            width: 100%;
+            padding: 16px;
+            font-size: 1rem;
+            font-family: inherit;
+            background: var(--primary-color);
+            color: var(--white);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+            letter-spacing: 1px;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background: var(--primary-light);
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        /* ============================================
+           RESULTS DISPLAY
+           ============================================ */
+        .results {
+            display: none;
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .results.show {
+            display: block;
+        }
+
+        /* Single match result */
+        .table-number {
+            font-size: 4rem;
+            color: var(--primary-color);
+            font-weight: normal;
+            line-height: 1;
+        }
+
+        .table-label {
+            font-size: 1.2rem;
+            color: var(--text-light);
+            margin-bottom: 25px;
+        }
+
+        .tablemates {
+            background: var(--background);
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .tablemates h3 {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            font-weight: normal;
+            margin-bottom: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        .tablemates ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .tablemates li {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+            color: var(--text-color);
+        }
+
+        .tablemates li:last-child {
+            border-bottom: none;
+        }
+
+        /* Multiple matches */
+        .multiple-matches {
+            text-align: left;
+        }
+
+        .multiple-matches > p {
+            text-align: center;
+            color: var(--text-light);
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+        }
+
+        .match-option {
+            background: var(--background);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        .match-option:last-child {
+            margin-bottom: 0;
+        }
+
+        .match-option .table-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .match-option .table-num {
+            font-size: 1.8rem;
+            color: var(--primary-color);
+        }
+
+        .match-option .table-text {
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        .match-option .others {
+            font-size: 0.9rem;
+            color: var(--text-color);
+            padding-left: 5px;
+        }
+
+        .match-option .others span {
+            display: block;
+            padding: 4px 0;
+        }
+
+        /* Not found state */
+        .not-found {
+            color: var(--error-color);
+            padding: 20px;
+        }
+
+        .not-found p {
+            margin-bottom: 10px;
+        }
+
+        .not-found .suggestion {
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        /* Search again button */
+        .search-again {
+            margin-top: 25px;
+            background: transparent;
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+        }
+
+        .search-again:hover {
+            background: var(--primary-color);
+            color: var(--white);
+        }
+
+        /* ============================================
+           LOADING STATE
+           ============================================ */
+        .loading {
+            display: none;
+            padding: 40px;
+            color: var(--text-light);
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        /* ============================================
+           FOOTER
+           ============================================ */
+        .footer {
+            margin-top: auto;
+            padding-top: 40px;
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+    </style>
+</head>
+<body>
+    <!-- ============================================
+         HEADER - Edit your names and date here
+         ============================================ -->
+    <header class="header">
+        <h1 class="couple-names">Sarah & James</h1>
+        <p class="wedding-date">June 15, 2025</p>
+        <div class="divider"></div>
+    </header>
+
+    <!-- ============================================
+         MAIN CONTENT
+         ============================================ -->
+    <main class="card">
+        <h2>Find Your Table</h2>
+
+        <!-- Search Form -->
+        <form id="searchForm">
+            <div class="form-group">
+                <label for="firstName">First Name</label>
+                <input 
+                    type="text" 
+                    id="firstName" 
+                    name="firstName" 
+                    required 
+                    autocomplete="given-name"
+                    autocapitalize="words"
+                    placeholder="Enter your first name"
+                >
+            </div>
+            <div class="form-group">
+                <label for="lastName">Last Name</label>
+                <input 
+                    type="text" 
+                    id="lastName" 
+                    name="lastName" 
+                    required 
+                    autocomplete="family-name"
+                    autocapitalize="words"
+                    placeholder="Enter your last name"
+                >
+            </div>
+            <button type="submit">Find My Table</button>
+        </form>
+
+        <!-- Loading State -->
+        <div id="loading" class="loading">
+            Looking up your table...
+        </div>
+
+        <!-- Results Container -->
+        <div id="results" class="results"></div>
+    </main>
+
+    <!-- ============================================
+         FOOTER
+         ============================================ -->
+    <footer class="footer">
+        <p>We're so glad you're here! 💕</p>
+    </footer>
+
+    <!-- ============================================
+         JAVASCRIPT - The logic that makes it work
+         ============================================ -->
+    <script>
+        // =============================================
+        // GUEST DATA - Paste your guest list here
+        // =============================================
+        // Format: { firstName: "Name", lastName: "Name", table: Number }
+        
+        const guestData = {
+            guests: [
+                // TABLE 1 - Smith Family
+                { firstName: "John", lastName: "Smith", table: 1 },
+                { firstName: "Jane", lastName: "Smith", table: 1 },
+                { firstName: "Robert", lastName: "Smith", table: 1 },
+                { firstName: "Mary", lastName: "Smith", table: 1 },
+                
+                // TABLE 2 - Johnson Family
+                { firstName: "Emily", lastName: "Johnson", table: 2 },
+                { firstName: "Michael", lastName: "Johnson", table: 2 },
+                { firstName: "Susan", lastName: "Johnson", table: 2 },
+                
+                // TABLE 3 - Mixed Friends
+                { firstName: "David", lastName: "Brown", table: 3 },
+                { firstName: "Lisa", lastName: "Brown", table: 3 },
+                { firstName: "Chris", lastName: "Wilson", table: 3 },
+                
+                // TABLE 4 - Work Colleagues
+                { firstName: "Amanda", lastName: "Davis", table: 4 },
+                { firstName: "Kevin", lastName: "Miller", table: 4 },
+                { firstName: "Rachel", lastName: "Garcia", table: 4 },
+                
+                // TABLE 5 - Another John Smith (different family)
+                { firstName: "John", lastName: "Smith", table: 5 },
+                { firstName: "Sarah", lastName: "Williams", table: 5 },
+                { firstName: "Tom", lastName: "Williams", table: 5 },
+                
+                // Add more guests following the same format...
+            ]
+        };
+
+        // =============================================
+        // HELPER FUNCTIONS
+        // =============================================
+
+        // Normalize text for comparison (lowercase, trim whitespace)
+        function normalize(text) {
+            return text.toLowerCase().trim();
+        }
+
+        // Find all guests matching the given name
+        function findGuests(firstName, lastName) {
+            return guestData.guests.filter(guest => 
+                normalize(guest.firstName) === normalize(firstName) &&
+                normalize(guest.lastName) === normalize(lastName)
+            );
+        }
+
+        // Get all guests at a specific table (excluding the searcher)
+        function getTablemates(tableNumber, excludeFirst, excludeLast) {
+            return guestData.guests.filter(guest => 
+                guest.table === tableNumber &&
+                !(normalize(guest.firstName) === normalize(excludeFirst) &&
+                  normalize(guest.lastName) === normalize(excludeLast))
+            );
+        }
+
+        // Format a guest's full name
+        function formatName(guest) {
+            return `${guest.firstName} ${guest.lastName}`;
+        }
+
+        // =============================================
+        // DISPLAY FUNCTIONS
+        // =============================================
+
+        // Show results for a single match
+        function displaySingleMatch(guest, firstName, lastName) {
+            const tablemates = getTablemates(guest.table, firstName, lastName);
+            
+            let tablematesHTML = '';
+            if (tablemates.length > 0) {
+                tablematesHTML = `
+                    <div class="tablemates">
+                        <h3>You'll be seated with:</h3>
+                        <ul>
+                            ${tablemates.map(t => `<li>${formatName(t)}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="single-match">
+                    <p class="table-label">Your table is</p>
+                    <p class="table-number">${guest.table}</p>
+                    ${tablematesHTML}
+                    <button class="search-again" onclick="resetForm()">Search Again</button>
+                </div>
+            `;
+        }
+
+        // Show results for multiple matches (same name, different tables)
+        function displayMultipleMatches(matches, firstName, lastName) {
+            const optionsHTML = matches.map(guest => {
+                const tablemates = getTablemates(guest.table, firstName, lastName);
+                const othersHTML = tablemates.length > 0
+                    ? `<div class="others">
+                         ${tablemates.map(t => `<span>• ${formatName(t)}</span>`).join('')}
+                       </div>`
+                    : '<div class="others"><span>• No other guests listed</span></div>';
+
+                return `
+                    <div class="match-option">
+                        <div class="table-header">
+                            <span class="table-num">${guest.table}</span>
+                            <span class="table-text">Table</span>
+                        </div>
+                        ${othersHTML}
+                    </div>
+                `;
+            }).join('');
+
+            return `
+                <div class="multiple-matches">
+                    <p>We found multiple guests with your name. Find your table by checking who you're seated with:</p>
+                    ${optionsHTML}
+                    <button class="search-again" onclick="resetForm()">Search Again</button>
+                </div>
+            `;
+        }
+
+        // Show not found message
+        function displayNotFound(firstName, lastName) {
+            return `
+                <div class="not-found">
+                    <p>We couldn't find <strong>${firstName} ${lastName}</strong> on the guest list.</p>
+                    <p class="suggestion">Please check your spelling or ask a member of the wedding party for help.</p>
+                    <button class="search-again" onclick="resetForm()">Try Again</button>
+                </div>
+            `;
+        }
+
+        // =============================================
+        // MAIN LOGIC
+        // =============================================
+
+        const form = document.getElementById('searchForm');
+        const results = document.getElementById('results');
+        const loading = document.getElementById('loading');
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const firstName = document.getElementById('firstName').value;
+            const lastName = document.getElementById('lastName').value;
+
+            // Show loading briefly (feels more responsive)
+            form.style.display = 'none';
+            loading.classList.add('show');
+            results.classList.remove('show');
+
+            // Small delay for UX
+            setTimeout(() => {
+                loading.classList.remove('show');
+                
+                const matches = findGuests(firstName, lastName);
+
+                if (matches.length === 0) {
+                    results.innerHTML = displayNotFound(firstName, lastName);
+                } else if (matches.length === 1) {
+                    results.innerHTML = displaySingleMatch(matches[0], firstName, lastName);
+                } else {
+                    results.innerHTML = displayMultipleMatches(matches, firstName, lastName);
+                }
+
+                results.classList.add('show');
+            }, 300);
+        });
+
+        // Reset to search form
+        function resetForm() {
+            form.style.display = 'block';
+            results.classList.remove('show');
+            document.getElementById('firstName').value = '';
+            document.getElementById('lastName').value = '';
+            document.getElementById('firstName').focus();
+        }
+    </script>
+</body>
+</html>
