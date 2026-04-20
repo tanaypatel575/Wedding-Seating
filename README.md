@@ -1,1 +1,1 @@
-# Wedding-Seating
+# ReceptionSeatingChart
